@@ -1,0 +1,3 @@
+D:/Lab3Sem2/cmake-build-debug/CMakeFiles/Lab3Sem2.dir
+D:/Lab3Sem2/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/Lab3Sem2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
