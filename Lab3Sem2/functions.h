@@ -51,13 +51,14 @@ typedef struct BMPFile
 
 #pragma pop
 
-BMPFile* loadBMPFile(char* fileName);
+BMPFile* loadBMPFile(const char* fileName);
 void freeBMPFile(BMPFile* bmp_file);
 char* inputStr();
-void printBMPHeaders (BMPFile* bmpFile);
+void printBMPHeaders (const BMPFile* bmpFile);
 void invertImage(BMPFile* bmp_file);
+double power(double base, int exponent);
 void BlackAndWhite(BMPFile* bmp_file);
-void writeBMPFile(BMPFile* bmp_file, char*);
+void writeBMPFile(const BMPFile* bmp_file,const char*);
 void gammaCorrection(BMPFile* bmp_file, double gamma);
 void medianFilter(BMPFile* bmp_file, int windowWidth);
 int menu();
