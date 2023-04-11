@@ -237,7 +237,7 @@ void gammaCorrection(BMPFile* bmp_file, double gamma1) {
     if (bmp_file->dibhdr.bitsPerPixel == 1 || bmp_file->dibhdr.bitsPerPixel == 2 || bmp_file->dibhdr.bitsPerPixel == 4 || bmp_file->dibhdr.bitsPerPixel == 8  || bmp_file->dibhdr.bitsPerPixel == 16) {
         for (int i = 0; i<count; i++)
         {
-            unsigned char gamma = (char)(255.0 * pow(bmp_file->colorTable[i] / 255.0, gamma1));
+            unsigned char gamma = (char)(255.0 * power(bmp_file->colorTable[i] / 255.0, gamma1));
             bmp_file->colorTable[i] = gamma;
         }
     }
