@@ -28,7 +28,7 @@ int main() {
                 break;
             case 3:
                 printf("Enter gamma::");
-                while (scanf_s("%f", &gamma) != 1 || getchar() != '\n' || gamma <= 0)
+                while (scanf("%f", &gamma) != 1 || getchar() != '\n' || gamma <= 0)
                 {
                     printf("Wrong input!\n");
                     rewind(stdin);
@@ -39,7 +39,7 @@ int main() {
                 break;
             case 4:
                 printf("Enter field::");
-                while (scanf_s("%d", &field) != 1 || getchar() != '\n' || field <= 0)
+                while (scanf("%d", &field) != 1 || getchar() != '\n' || field <= 0)
                 {
                     printf("Wrong input!\n");
                     rewind(stdin);
