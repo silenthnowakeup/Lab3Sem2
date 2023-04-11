@@ -48,7 +48,7 @@ typedef struct BMPFile
     Pixel** pixels;
 }BMPFile;
 
-#pragma pop
+#pragma pack(pop)
 
 BMPFile* loadBMPFile(const char* fileName);
 void freeBMPFile(BMPFile* bmp_file);
