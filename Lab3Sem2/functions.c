@@ -160,7 +160,12 @@ int menu()
     printf("5. Show information of header\n");
     printf("6. Exit\n");
 
-    scanf_s("%d",&value);
+    while (scanf("%d", &value) != 1 || getchar() != '\n' || value <= 0 || value>6)
+    {
+        printf("Wrong input!\n");
+        rewind(stdin);
+
+    }
     return value;
 }
 
