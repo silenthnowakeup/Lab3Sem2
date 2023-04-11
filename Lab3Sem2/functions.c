@@ -56,19 +56,30 @@ BMPFile* loadBMPFile(const char* fileName)
 
 void writeBMPFile(const BMPFile* bmp_file,const char* fileName)
 {
-    FILE* fp;
-    if ((fp = fopen(fileName,"wb")) == NULL)
-    {
+    FILE* fp = fopen(fileName, "wb");
+    if (fp == NULL) {
         printf("Error\n");
         exit(1);
     }
+
     fwrite(&bmp_file->bmphdr, sizeof(bmp_file->bmphdr), 1, fp);
     fwrite(&bmp_file->dibhdr, sizeof(bmp_file->dibhdr), 1, fp);
 
-    if (bmp_file->dibhdr.bitsPerPixel == 1 || bmp_file->dibhdr.bitsPerPixel == 2 || bmp_file->dibhdr.bitsPerPixel == 4 || bmp_file->dibhdr.bitsPerPixel == 8  || bmp_file->dibhdr.bitsPerPixel == 16) {
-        unsigned int rowPadding = (4 - ((bmp_file->dibhdr.width * bmp_file->dibhdr.bitsPerPixel / 8) % 4)) % 4;;
+    if (bmp_file->dibhdr.bitsPerPixel == 24) {
+        fseek(fp, bmp_file->bmphdr.pixelOffset, SEEK_SET);
+        for (int i = 0; i < bmp_file->dibhdr.height; i++) {
+            for (int j = 0; j < bmp_file->dibhdr.width; j++) {
+                fwrite(&bmp_file->pixels[i][j], sizeof(Pixel), 1, fp);
+            }
+        }
+    } else {
+        if (bmp_file->dibhdr.bitsPerPixel != 1 && bmp_file->dibhdr.bitsPerPixel != 2 && bmp_file->dibhdr.bitsPerPixel != 4 && bmp_file->dibhdr.bitsPerPixel != 8 && bmp_file->dibhdr.bitsPerPixel != 16) {
+            fclose(fp);
+            return;
+        }
+        unsigned int rowPadding = (4 - ((bmp_file->dibhdr.width * bmp_file->dibhdr.bitsPerPixel / 8) % 4)) % 4;
         fwrite(bmp_file->colorTable, sizeof(unsigned char), count, fp);
-        for (int i = bmp_file->dibhdr.height-1; i >= 0; i--) {
+        for (int i = bmp_file->dibhdr.height - 1; i >= 0; i--) {
             for (int j = 0; j < bmp_file->dibhdr.width; j++) {
                 unsigned char pixel = bmp_file->pixels[i][j].red;
                 fwrite(&pixel, sizeof(unsigned char), 1, fp);
@@ -82,17 +93,10 @@ void writeBMPFile(const BMPFile* bmp_file,const char* fileName)
             }
         }
     }
-    else if(bmp_file->dibhdr.bitsPerPixel == 24)
-    {
-        fseek(fp,bmp_file->bmphdr.pixelOffset,SEEK_SET);
-        for (int i = 0; i < bmp_file->dibhdr.height; i++) {
-            for (int j = 0; j < bmp_file->dibhdr.width; j++) {
-                fwrite(&bmp_file->pixels[i][j],sizeof(Pixel),1,fp);
-            }
-        }
-    }
+
     fclose(fp);
 }
+
 
 
 
@@ -116,9 +120,9 @@ char* inputStr() {
             str = (char*) realloc(str, len * sizeof(char));
         }
 
-        str[pos] = c;
+        str[pos] = (char)c;
         pos++;
-        c = (int)getchar();
+        c = getchar();
     }
 
     if (pos == len) {
@@ -222,7 +226,7 @@ void BlackAndWhite(BMPFile* bmp_file) {
     }
 }
 
-double power(double base, int exponent) {
+double power(double base, double exponent) {
     double result = 1.0;
 
     while (exponent > 0) {
@@ -287,7 +291,9 @@ void medianFilter(BMPFile* bmp, int size) {
 
     for (int y = radius; y < bmp->dibhdr.height-radius; y++) {
         for (int x = radius; x < bmp->dibhdr.width-radius; x++) {
-            unsigned char red[size*size], green[size*size], blue[size*size];
+            unsigned char red[size*size];
+            unsigned char green[size*size];
+            unsigned char blue[size*size];
             int idx = 0;
             for (int j = y-radius; j <= y+radius; j++) {
                 for (int i = x-radius; i <= x+radius; i++) {
