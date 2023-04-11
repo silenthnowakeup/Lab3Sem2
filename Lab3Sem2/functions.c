@@ -216,6 +216,17 @@ void BlackAndWhite(BMPFile* bmp_file) {
     }
 }
 
+double power(double base, int exponent) {
+    double result = 1.0;
+
+    while (exponent > 0) {
+        result *= base;
+        exponent--;
+    }
+
+    return result;
+}
+
 void gammaCorrection(BMPFile* bmp_file, double gamma1) {
     if (bmp_file->dibhdr.bitsPerPixel == 1 || bmp_file->dibhdr.bitsPerPixel == 2 || bmp_file->dibhdr.bitsPerPixel == 4 || bmp_file->dibhdr.bitsPerPixel == 8  || bmp_file->dibhdr.bitsPerPixel == 16) {
         for (int i = 0; i<1024; i++)
@@ -229,9 +240,9 @@ void gammaCorrection(BMPFile* bmp_file, double gamma1) {
     {
     for (int i = 0; i < bmp_file->dibhdr.height; i++) {
         for (int j = 0; j < bmp_file->dibhdr.width; j++) {
-            unsigned char red = 255 * pow(bmp_file->pixels[i][j].red / 255.0,  gamma1);
-            unsigned char green = 255 * pow(bmp_file->pixels[i][j].green / 255.0, gamma1);
-            unsigned char blue = 255 * pow(bmp_file->pixels[i][j].blue / 255.0, gamma1);
+            unsigned char red = 255 * power(bmp_file->pixels[i][j].red / 255.0,  gamma1);
+            unsigned char green = 255 * power(bmp_file->pixels[i][j].green / 255.0, gamma1);
+            unsigned char blue = 255 * power(bmp_file->pixels[i][j].blue / 255.0, gamma1);
             bmp_file->pixels[i][j].red = red;
             bmp_file->pixels[i][j].green = green;
             bmp_file->pixels[i][j].blue = blue;
