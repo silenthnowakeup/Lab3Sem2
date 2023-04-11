@@ -3,8 +3,9 @@
 //
 
 #include "functions.h"
+#define count 1024
 
-BMPFile* loadBMPFile(char* fileName)
+BMPFile* loadBMPFile(const char* fileName)
 {
     FILE* fp;
     if ((fp = fopen(fileName,"rb")) == NULL)
@@ -23,7 +24,7 @@ BMPFile* loadBMPFile(char* fileName)
     if (bmp_file->dibhdr.bitsPerPixel == 1 || bmp_file->dibhdr.bitsPerPixel == 2 || bmp_file->dibhdr.bitsPerPixel == 4 || bmp_file->dibhdr.bitsPerPixel == 8  || bmp_file->dibhdr.bitsPerPixel == 16)
     {
         unsigned int rowPadding = (4-((bmp_file->dibhdr.width * bmp_file->dibhdr.bitsPerPixel / 8) %4 )) %4;
-        fread(bmp_file->colorTable,sizeof(unsigned char),1024,fp);
+        fread(bmp_file->colorTable,sizeof(unsigned char),count,fp);
         for (int i = bmp_file->dibhdr.height-1; i >=0;i--)
         {
             for (int j = 0;j < bmp_file->dibhdr.width;j++)
@@ -53,15 +54,20 @@ BMPFile* loadBMPFile(char* fileName)
 }
 
 
-void writeBMPFile(BMPFile* bmp_file, char* fileName)
+void writeBMPFile(const BMPFile* bmp_file,const char* fileName)
 {
-    FILE* fp = fopen(fileName, "wb");
+    FILE* fp;
+    if ((fp = fopen(fileName,"wb")) == NULL)
+    {
+        printf("Error\n");
+        exit(1);
+    }
     fwrite(&bmp_file->bmphdr, sizeof(bmp_file->bmphdr), 1, fp);
     fwrite(&bmp_file->dibhdr, sizeof(bmp_file->dibhdr), 1, fp);
 
     if (bmp_file->dibhdr.bitsPerPixel == 1 || bmp_file->dibhdr.bitsPerPixel == 2 || bmp_file->dibhdr.bitsPerPixel == 4 || bmp_file->dibhdr.bitsPerPixel == 8  || bmp_file->dibhdr.bitsPerPixel == 16) {
         unsigned int rowPadding = (4 - ((bmp_file->dibhdr.width * bmp_file->dibhdr.bitsPerPixel / 8) % 4)) % 4;;
-        fwrite(bmp_file->colorTable, sizeof(unsigned char), 1024, fp);
+        fwrite(bmp_file->colorTable, sizeof(unsigned char), count, fp);
         for (int i = bmp_file->dibhdr.height-1; i >= 0; i--) {
             for (int j = 0; j < bmp_file->dibhdr.width; j++) {
                 unsigned char pixel = bmp_file->pixels[i][j].red;
@@ -102,7 +108,7 @@ char* inputStr() {
     char* str = NULL;
     int pos = 0;
     int len = 0;
-    char c = getchar();
+    int c = getchar();
 
     while (c != '\n') {
         if (pos == len) {
@@ -112,7 +118,7 @@ char* inputStr() {
 
         str[pos] = c;
         pos++;
-        c = getchar();
+        c = (int)getchar();
     }
 
     if (pos == len) {
@@ -124,7 +130,7 @@ char* inputStr() {
     return str;
 }
 
-void printBMPHeaders (BMPFile* bmpFile)
+void printBMPHeaders (const BMPFile* bmpFile)
 {
     printf("ID[2]=%c%c;\nfileSize = %d;\npixelOffset=%d;\n",bmpFile->bmphdr.ID[0],bmpFile->bmphdr.ID[1],bmpFile->bmphdr.fileSize,bmpFile->bmphdr.pixelOffset);
     printf("headerSize=%d;\n"
@@ -171,7 +177,7 @@ int menu()
 
 void invertImage(BMPFile* bmp_file) {
     if (bmp_file->dibhdr.bitsPerPixel == 1 || bmp_file->dibhdr.bitsPerPixel == 2 || bmp_file->dibhdr.bitsPerPixel == 4 || bmp_file->dibhdr.bitsPerPixel == 8) {
-        for (int i = 0; i < 1024; i++) {
+        for (int i = 0; i < count; i++) {
             bmp_file->colorTable[i] = 255 - bmp_file->colorTable[i];
         }
     } else {
@@ -190,7 +196,7 @@ void invertImage(BMPFile* bmp_file) {
 
 void BlackAndWhite(BMPFile* bmp_file) {
     if (bmp_file->dibhdr.bitsPerPixel == 1 || bmp_file->dibhdr.bitsPerPixel == 2 || bmp_file->dibhdr.bitsPerPixel == 4 || bmp_file->dibhdr.bitsPerPixel == 8 || bmp_file->dibhdr.bitsPerPixel == 16) {
-        for (int i = 0; i < 1024/3; i+=3) {
+        for (int i = 0; i < count/3; i+=3) {
             unsigned char gray = (bmp_file->colorTable[i] + bmp_file->colorTable[i+1] + bmp_file->colorTable[i+2]) / 3;
             bmp_file->colorTable[i] = gray;
             bmp_file->colorTable[i+1] = gray;
@@ -229,9 +235,9 @@ double power(double base, int exponent) {
 
 void gammaCorrection(BMPFile* bmp_file, double gamma1) {
     if (bmp_file->dibhdr.bitsPerPixel == 1 || bmp_file->dibhdr.bitsPerPixel == 2 || bmp_file->dibhdr.bitsPerPixel == 4 || bmp_file->dibhdr.bitsPerPixel == 8  || bmp_file->dibhdr.bitsPerPixel == 16) {
-        for (int i = 0; i<1024; i++)
+        for (int i = 0; i<count; i++)
         {
-            unsigned char gamma = 255.0 * power(bmp_file->colorTable[i] / 255.0, gamma1);
+            unsigned char gamma = (char)(255.0 * pow(bmp_file->colorTable[i] / 255.0, gamma1));
             bmp_file->colorTable[i] = gamma;
         }
     }
@@ -240,9 +246,9 @@ void gammaCorrection(BMPFile* bmp_file, double gamma1) {
     {
     for (int i = 0; i < bmp_file->dibhdr.height; i++) {
         for (int j = 0; j < bmp_file->dibhdr.width; j++) {
-            unsigned char red = 255 * power(bmp_file->pixels[i][j].red / 255.0,  gamma1);
-            unsigned char green = 255 * power(bmp_file->pixels[i][j].green / 255.0, gamma1);
-            unsigned char blue = 255 * power(bmp_file->pixels[i][j].blue / 255.0, gamma1);
+            unsigned char red = (char)(255.0 * power(bmp_file->pixels[i][j].red / 255.0,  gamma1));
+            unsigned char green = (char)(255.0 * power(bmp_file->pixels[i][j].green / 255.0, gamma1));
+            unsigned char blue = (char)(255.0 * power(bmp_file->pixels[i][j].blue / 255.0, gamma1));
             bmp_file->pixels[i][j].red = red;
             bmp_file->pixels[i][j].green = green;
             bmp_file->pixels[i][j].blue = blue;
@@ -291,9 +297,9 @@ void medianFilter(BMPFile* bmp, int size) {
                     idx++;
                 }
             }
-            newPixels[y][x].red = median(red, size*size);
-            newPixels[y][x].green = median(green, size*size);
-            newPixels[y][x].blue = median(blue, size*size);
+            newPixels[y][x].red = (unsigned char)median(red, size*size);
+            newPixels[y][x].green = (unsigned char)median(green, size*size);
+            newPixels[y][x].blue = (unsigned char)median(blue, size*size);
         }
     }
 
