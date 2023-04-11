@@ -3,8 +3,9 @@
 int main() {
     printf("Enter Name of File::");
     char *str = inputStr();
-    char *check = strrchr(str, '.');
+    const char *check = strrchr(str, '.');
     if (check != NULL && strcmp(check + 1, "bmp") == 0) {
+        printf("<<Okay, this file I support>>\n");
         } else {
         printf("File  <<%s>> is not BMP format.\n", str);
         return 0;
@@ -27,7 +28,7 @@ int main() {
                 break;
             case 3:
                 printf("Enter gamma::");
-                while (scanf("%f", &gamma) != 1 || getchar() != '\n' || gamma <= 0)
+                while (scanf_s("%f", &gamma) != 1 || getchar() != '\n' || gamma <= 0)
                 {
                     printf("Wrong input!\n");
                     rewind(stdin);
@@ -38,7 +39,7 @@ int main() {
                 break;
             case 4:
                 printf("Enter field::");
-                while (scanf("%d", &field) != 1 || getchar() != '\n' || field <= 0)
+                while (scanf_s("%d", &field) != 1 || getchar() != '\n' || field <= 0)
                 {
                     printf("Wrong input!\n");
                     rewind(stdin);
@@ -50,7 +51,7 @@ int main() {
             case 5:
                 printBMPHeaders(bmpFile);
                 break;
-            case 6:
+            default:
                 freeBMPFile(bmpFile);
                 printf("Good luck :))))");
                 return 0;
@@ -58,8 +59,9 @@ int main() {
 
         printf("Enter name of file::");
         str2 = inputStr();
-        char *check2 = strrchr(str2, '.');
+        const char *check2 = strrchr(str2, '.');
         if (check != NULL && strcmp(check2 + 1, "bmp") == 0) {
+            printf("<<Okay, this file I support>>\n");
         } else {
             printf("File  <<%s>> is not BMP format.\n", str2);
             return 0;
